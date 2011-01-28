@@ -1,5 +1,26 @@
+
+ 
+# BFake.py
+# 
+# Copyright (C) 2010 Daniel Arndt
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from selenium import selenium
 import time, random, csv, sys
+
 
 #Configuration stuff
 MIN_PAGES = 1 #Minimum pages to open in a single browser session
@@ -97,7 +118,7 @@ def main():
                     sleeptime = rand_time_spent()
                     print "Waiting for %s seconds before following link %s." % (sleeptime, linktext)
                     time.sleep(sleeptime)
-                    sel.click("link="+linktext)
+                    sel.click("link="+linktext.encode('utf-8'))
                     page_loadtime = random.randrange(20000,40000)
                     print "Will wait %d milliseconds for page to load." % (page_loadtime)
                     sel.wait_for_page_to_load(str(page_loadtime))
@@ -105,8 +126,8 @@ def main():
                     print "Following link %s succeeded" % (linktext)
                 except Exception as e:
                     failed_attempts += 1
-                    print "Following link %s failed, failed attempts: %d." % (linktext, failed_attempts)
-                    print e
+                    print "Following link %s failed, failed attempts: %d." % (linktext.encode('utf-8'), failed_attempts)
+                    print str(e).encode('utf-8')
                     if failed_attempts > 4:
                         print "Failed too many times, exiting."
                         sel.stop()
