@@ -87,6 +87,7 @@ def main():
             print e
             if (attempts > MAX_ATTEMPTS_SERVERCONNECT-2):
                 print "Failed after %s attempts" % (MAX_ATTEMPTS_SERVERCONNECT)
+                sel.stop()
                 return 1
             else:
                 print "Trying again in 5 seconds."
@@ -100,18 +101,21 @@ def main():
     success = False
     num_pages_to_browse = random.randint(MIN_PAGES,MAX_PAGES)
     num_links_to_follow = random.randint(MIN_LINKS,MAX_LINKS)
-    for _ in range(num_pages_to_browse-1):
+    for page_num in range(num_pages_to_browse-1):
         print "Opening window at %s." % (current_url)
         try:
+            if page_num > 0:
+                current_url = get_rand_URL()
             sel.open(current_url)
+            
         except Exception as e:
             print e
-            current_url = get_rand_URL()
             continue
         print "Following %d links on %s." % (num_links_to_follow, current_url)
         for link_num in range(num_links_to_follow):
             print "Currently visiting link %d of %d." % (link_num+1, num_links_to_follow+1)
             failed_attempts = 0
+            linktext = ""
             while not success:
                 try:
                     linktext = sel.get_eval(get_randomlink_javascript)
@@ -126,7 +130,10 @@ def main():
                     print "Following link %s succeeded" % (linktext)
                 except Exception as e:
                     failed_attempts += 1
-                    print "Following link %s failed, failed attempts: %d." % (linktext.encode('utf-8'), failed_attempts)
+                    if 'linktext' in locals():
+                        print "Following link %s failed, failed attempts: %d." % (linktext.encode('utf-8'), failed_attempts)
+                    else:
+                        print "Error: linktext is not defined."
                     print str(e).encode('utf-8')
                     if failed_attempts > 4:
                         print "Failed too many times, exiting."
