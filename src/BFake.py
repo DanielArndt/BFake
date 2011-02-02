@@ -96,9 +96,7 @@ class BFake:
         #This JavaScript randomly selects a link from the browser and return the string
         #name of it.
         #ref: http://blog.browsermob.com/2009/08/how-to-get-selenium-to-follow-random-links/
-        get_randomlink_javascript = "var temp = eval_xpath('//a\', window.document);\n"+"temp[Math.floor(Math.random() * temp.length)].innerHTML"
         print "Starting BFake at URL %s." % (current_url)
-        success = False
         num_pages_to_browse = random.randint(self.MIN_PAGES,self.MAX_PAGES)
         num_links_to_follow = random.randint(self.MIN_LINKS,self.MAX_LINKS)
         for page_num in range(num_pages_to_browse-1):
@@ -114,37 +112,44 @@ class BFake:
             print "Following %d links on %s." % (num_links_to_follow, current_url)
             for link_num in range(num_links_to_follow):
                 print "Currently visiting link %d of %d." % (link_num+1, num_links_to_follow+1)
-                failed_attempts = 0
-                linktext = ""
-                while not success:
-                    try:
-                        linktext = sel.get_eval(get_randomlink_javascript)
-                        sleeptime = self.rand_time_spent()
-                        print "Waiting for %s seconds before following link %s." % (sleeptime, linktext)
-                        time.sleep(sleeptime)
-                        sel.click("link="+linktext.encode('utf-8'))
-                        page_loadtime = random.randrange(20000,40000)
-                        print "Will wait %d milliseconds for page to load." % (page_loadtime)
-                        sel.wait_for_page_to_load(str(page_loadtime))
-                        success = True
-                        print "Following link %s succeeded" % (linktext)
-                    except Exception as e:
-                        failed_attempts += 1
-                        if 'linktext' in locals():
-                            print "Following link %s failed, failed attempts: %d." % (linktext.encode('utf-8'), failed_attempts)
-                        else:
-                            print "Error: linktext is not defined."
-                        print str(e).encode('utf-8')
-                        if failed_attempts > 4:
-                            print "Failed too many times, exiting."
-                            sel.stop()
-                            return 1
-                success = False 
+                if (self.visitRandomLink(sel) == 1):
+                    return 1
+                
+
             #Add something to close all windows?
         print "Done visiting all websites and links in this instance. Exiting."
         #Close the server, exit browser, close all connections to and proxy.
         sel.stop()
         return 0
+
+    def visitRandomLink(self, sel):
+        get_randomlink_javascript = "var temp = eval_xpath('//a\', window.document);\n"+"temp[Math.floor(Math.random() * temp.length)].innerHTML"
+        success = False
+        linktext = ""
+        failed_attempts = 0
+        while not success:
+            try:
+                linktext = sel.get_eval(get_randomlink_javascript)
+                sleeptime = self.rand_time_spent()
+                print "Waiting for %s seconds before following link %s." % (sleeptime, linktext)
+                time.sleep(sleeptime)
+                sel.click("link="+linktext.encode('utf-8'))
+                page_loadtime = random.randrange(20000,40000)
+                print "Will wait %d milliseconds for page to load." % (page_loadtime)
+                sel.wait_for_page_to_load(str(page_loadtime))
+                success = True
+                print "Following link %s succeeded" % (linktext)
+            except Exception as e:
+                failed_attempts += 1
+                if 'linktext' in locals():
+                    print "Following link %s failed, failed attempts: %d." % (linktext.encode('utf-8'), failed_attempts)
+                else:
+                    print "Error: linktext is not defined."
+                print str(e).encode('utf-8')
+                if failed_attempts > 4:
+                    print "Failed too many times, exiting."
+                    sel.stop()
+                    return 1
     
 if __name__ == "__main__":
     print "Exiting with status: %d" % (BFake().main())
