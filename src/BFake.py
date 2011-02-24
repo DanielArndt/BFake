@@ -1,4 +1,3 @@
-
  
 # BFake.py
 # 
@@ -93,9 +92,6 @@ class BFake:
                     print "Trying again in 5 seconds."
                     time.sleep(5) 
             
-        #This JavaScript randomly selects a link from the browser and return the string
-        #name of it.
-        #ref: http://blog.browsermob.com/2009/08/how-to-get-selenium-to-follow-random-links/
         print "Starting BFake at URL %s." % (current_url)
         num_pages_to_browse = random.randint(self.MIN_PAGES,self.MAX_PAGES)
         num_links_to_follow = random.randint(self.MIN_LINKS,self.MAX_LINKS)
@@ -123,6 +119,9 @@ class BFake:
         return 0
 
     def visitRandomLink(self, sel):
+        #This JavaScript randomly selects a link from the browser and return the string
+        #name of it.
+        #ref: http://blog.browsermob.com/2009/08/how-to-get-selenium-to-follow-random-links/
         get_randomlink_javascript = "var temp = eval_xpath('//a\', window.document);\n"+"temp[Math.floor(Math.random() * temp.length)].innerHTML"
         success = False
         linktext = ""
